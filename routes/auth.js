@@ -23,41 +23,7 @@ router.post("/sign-up", async (req, res) => {
         const insertUserQuery = `INSERT INTO UserDetails (Name, Phone, Email, Password, AccountType) VALUES (?, ?, ?, ?, ?, ?)`;
         await con.execute(insertUserQuery, [name, phone, email, password, accountType]);
 
-<<<<<<< HEAD
         const [result] = await con.execute("SELECT * FROM UserDetails WHERE Email = ?", [email]);
-=======
-        if (existingUsers.length > 0) {
-            return res.status(409).json("User with this email already exists.");
-        }
-
-        const formattedDob = new Date(dob).toISOString().split("T")[0];
-        const insertUserQuery = `INSERT INTO UserDetails (Name, Phone, Email, DOB, Password) VALUES (?, ?, ?, ?, ?);`;
-        await con.execute(insertUserQuery, [
-            name,
-            phone,
-            email,
-            formattedDob,
-            password,
-        ]);
-
-        const templatePath = path.join(__dirname, "../email-templates", "otp-email-template.html");
-        let emailTemplate = fs.readFileSync(templatePath, "utf-8");
-
-        const currentDate = new Date().toLocaleDateString();
-        otp = generateOTP(4);
-        emailTemplate = emailTemplate
-            .replace(/{{OTP}}/g, otp)
-            .replace(/{{firstName}}/g, name)
-            .replace(/{{date}}/g, currentDate);
-
-        // Hardcoded from and subject
-        const from = `"Collab World" <${process.env.SMTP_USER}>`;
-        const subject = "Your Account Verification Password";
-        await sendEmail(from, email, subject, emailTemplate, [], smtpConfig);
-
-        const query = "SELECT * FROM `UserDetails` WHERE Email = ? AND Password = ? LIMIT 1";
-        const [result] = await con.execute(query, [email, password]);
->>>>>>> 2be34bdea1bffc6bde2af42d5993408f24ca56e5
         const user = result[0];
         const { Password, ...userData } = user;
         const token = jwt.sign(userData, process.env.SECRET_KEY, { expiresIn: "10h", });
@@ -125,11 +91,7 @@ router.post("/verify-account", async (req, res) => {
         emailTemplate = emailTemplate.replace(/{{OTP}}/g, otp).replace(/{{firstName}}/g, existingUsers[0].FirstName).replace(/{{date}}/g, currentDate);
 
         // Hardcoded from and subject
-<<<<<<< HEAD
         const from = `"Roomo" <${process.env.SMTP_USER}>`;
-=======
-        const from = `"Collab World" <${process.env.SMTP_USER}>`;
->>>>>>> 2be34bdea1bffc6bde2af42d5993408f24ca56e5
         const subject = "Your One Time Password (OTP)";
 
         await sendEmail(from, email, subject, emailTemplate, [], smtpConfig);
@@ -141,7 +103,6 @@ router.post("/verify-account", async (req, res) => {
     }
 });
 
-<<<<<<< HEAD
 router.post("/send-otp", async (req, res) => {
     try {
         const { email } = req.body;
@@ -198,30 +159,6 @@ router.post("/verify-otp", async (req, res) => {
 
 router.put("/reset-password", async (req, res) => {
     const { email, newPassword } = req.body;
-=======
-router.put("/activate-account", async (req, res) => {
-    const { email } = req.body;
-
-    try {
-        const [rows] = await con.execute("SELECT * FROM UserDetails WHERE Email = ?", [email]);
-
-        if (rows.length === 0) {
-            return res.status(404).json({ message: "User not found." });
-        }
-
-        const query = `UPDATE UserDetails SET IsVerified = 1 WHERE Email = ?`;
-        await con.execute(query, [ email]);
-
-        return res.json({ message: "Account activated successfully." });
-    } catch (error) {
-        console.error("Account activating error:", error);
-        return res.status(500).json({ message: "Internal server error. Please try again later." });
-    }
-});
-
-router.put("/update-password", async (req, res) => {
-    const { email, userOTP, newPassword } = req.body;
->>>>>>> 2be34bdea1bffc6bde2af42d5993408f24ca56e5
 
     if (!newPassword) {
         return res.status(400).json({ message: "New password is required." });
