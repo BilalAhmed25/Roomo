@@ -88,7 +88,7 @@ router.post("/sign-up", async (req, res) => {
   }
 });
 
-router.post("/login", async (req, res) => {
+router.post("/sign-in", async (req, res) => {
   const { email, password } = req.body;
   try {
     const [result] = await con.execute(
