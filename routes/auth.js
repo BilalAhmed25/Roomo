@@ -72,16 +72,16 @@ router.post("/sign-up", async (req, res) => {
       const msg = error.sqlMessage || "";
       if (msg.includes("Email") || msg.includes("email")) {
         return res
-          .status(409)
+          .status(400)
           .json({ message: "User with this email already exists." });
       }
       if (msg.includes("Phone") || msg.includes("phone")) {
         return res
-          .status(409)
+          .status(400)
           .json({ message: "User with this phone number already exists." });
       }
       return res
-        .status(409)
+        .status(400)
         .json("A user with this email or phone already exists.");
     }
     res.status(500).json("Internal server error. Please try again later.");
